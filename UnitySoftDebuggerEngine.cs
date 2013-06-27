@@ -80,9 +80,6 @@ namespace MonoDevelop.Debugger.Soft.Unity
 			}
 		}
 		
-		static readonly List<string> UserAssemblies = new List<string>{
-		};
-
 		public bool CanDebugCommand (ExecutionCommand command)
 		{			return (command is UnityExecutionCommand && null == session);
 		}
