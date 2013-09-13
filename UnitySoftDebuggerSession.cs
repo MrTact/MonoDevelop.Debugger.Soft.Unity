@@ -60,7 +60,7 @@ namespace MonoDevelop.Debugger.Soft.Unity
 			Adaptor.BusyStateChanged += delegate(object sender, BusyStateEventArgs e) {
 				SetBusyState (e);
 			};
-			MonoDevelop.Ide.IdeApp.Exiting += (sender,args) => EndSession();
+			//MonoDevelop.Ide.IdeApp.Exiting += (sender,args) => EndSession();
 		}
 		
 		protected override void OnRun (DebuggerStartInfo startInfo)
@@ -119,9 +119,10 @@ namespace MonoDevelop.Debugger.Soft.Unity
 		protected override void EndSession ()
 		{
 			try {
-				Ide.DispatchService.GuiDispatch (() =>
-					Ide.IdeApp.Workbench.CurrentLayout = UnityProjectServiceExtension.EditLayout
-				);
+				Ide.DispatchService.GuiDispatch (() => {
+					Ide.IdeApp.Workbench.HideCommandBar ("Debug");
+					Ide.IdeApp.Workbench.CurrentLayout = UnityProjectServiceExtension.EditLayout;
+				});
 				EndUnityProcess ();
 				base.EndSession ();
 			} catch (Mono.Debugger.Soft.VMDisconnectedException) {
@@ -147,9 +148,10 @@ namespace MonoDevelop.Debugger.Soft.Unity
 		
 		protected override string GetConnectingMessage (DebuggerStartInfo dsi)
 		{
-			Ide.DispatchService.GuiDispatch (() =>
-				Ide.IdeApp.Workbench.CurrentLayout = "Debug"
-			);
+			Ide.DispatchService.GuiDispatch (() => {
+				Ide.IdeApp.Workbench.CurrentLayout = "Debug";
+			    Ide.IdeApp.Workbench.ShowCommandBar ("Debug");
+			});
 			return base.GetConnectingMessage (dsi);
 		}
 		
@@ -186,7 +188,12 @@ namespace MonoDevelop.Debugger.Soft.Unity
 		protected override void OnDetach()
 		{
 			try {
-                //VirtualMachine.Disconnect();
+				Ide.DispatchService.GuiDispatch (() => {
+					Ide.IdeApp.Workbench.HideCommandBar ("Debug");
+					Ide.IdeApp.Workbench.CurrentLayout = UnityProjectServiceExtension.EditLayout;
+				});
+
+                VirtualMachine.Disconnect();
                 VirtualMachine.Detach();
 			} catch (ObjectDisposedException) {
 			} catch (VMDisconnectedException) {
